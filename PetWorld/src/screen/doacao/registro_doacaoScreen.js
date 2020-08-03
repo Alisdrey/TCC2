@@ -30,6 +30,7 @@ export default class registro_doacaoScreen extends React.Component {
         this.state = {
             user: {},
             animalusuario: [],
+            animalSelect: [],
             idanimal: "",
             selected: "key0",
 
@@ -53,54 +54,50 @@ export default class registro_doacaoScreen extends React.Component {
 
     enviar() {
 
-        // this.state.animalusuario.map((item, index) => {
+        let formdata = new FormData();
 
-        //     if (this.state.idanimal == index) {
+        formdata.append('idanimal', this.state.animalSelect.idAnimal)
+        fetch(Server.API_INSERT_DOACAO, {
+            method: "POST",
+            'Content-Type': 'multipart/form-data',
+            body: formdata
+        }).then(response => response.json())
+            .then(response => {
+                console.log("erro", response)
+                this.props.navigation.navigate("HomeAP")
 
-        //         this.setState({
-        //             idanimal: item.idAnimal
-        //         }, () => {
-        //             let formdata = new FormData();
-
-        //             formdata.append('idusuario', this.state.user.idUsuario)
-        //             formdata.append('idanimal', this.state.idanimal)
-        //             formdata.append('cidade', this.state.cidade)
-        //             formdata.append('estado', this.state.estado)
-        //             formdata.append('descricao', this.state.descricao)
-        //             console.log(formdata)
-
-
-        //             fetch(Server.API_INSERIR_PET_PERDIDO, {
-        //                 method: "POST",
-        //                 'Content-Type': 'multipart/form-data',
-        //                 body: formdata
-        //             }).then(response => response.json())
-        //                 .then(response => {
-        //                     console.log("erro", response)
-        //                     this.props.navigation.navigate("HomeAP")
-
-        //                 })
-        //         })
-
-        //     }
-
-        // })
-
+            })
     }
 
+
+    getAnimal = (value) => {
+        let url =
+            Server.API_ANIMAL +
+            value
+        fetch(url)
+            .then(response => response.json())
+            .then(responseJson => {
+                if (responseJson != null) {
+                    console.log(responseJson)
+                    this.setState({
+                        animalSelect: responseJson,
+                    });
+                }
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    };
 
     getAnimal_Usuario = () => {
         let url =
             Server.API_PET_DO_USUARIO +
             this.state.user.idUsuario +
             '/pets'
-        console.log(url)
         fetch(url)
             .then(response => response.json())
             .then(responseJson => {
-                console.log(responseJson)
                 if (responseJson != null) {
-                    console.log(responseJson)
                     this.setState({
                         animalusuario: responseJson,
                     });
@@ -112,9 +109,15 @@ export default class registro_doacaoScreen extends React.Component {
     };
 
     onValueChange(value) {
-        this.setState({
-            idanimal: value
-        })
+
+        if (value != null) {
+            this.setState({
+                idanimal: value
+            }, () => {
+                this.getAnimal(value)
+
+            })
+        }
     }
 
 
@@ -131,7 +134,7 @@ export default class registro_doacaoScreen extends React.Component {
                         <View>
                             <Form style={{ padding: 20 }}>
 
-                            <Item stackedLabel >
+                                <Item stackedLabel >
                                     <Label style={{ fontSize: 15 }}>Escolha seu animal</Label>
                                     <Picker
                                         mode="dropdown"
@@ -150,7 +153,7 @@ export default class registro_doacaoScreen extends React.Component {
                                         {
 
                                             this.state.animalusuario.map((item, index) =>
-                                                <Picker.Item key={item.nome} label={item.nome} value={index} /> // item seleciona o atributo q eu quero 
+                                                <Picker.Item key={item.nome} label={item.nome} value={item.idAnimal} /> // item seleciona o atributo q eu quero 
                                             )
 
                                         }
@@ -159,72 +162,54 @@ export default class registro_doacaoScreen extends React.Component {
                                     </Picker>
                                 </Item>
 
-                                {/* <Renderif test={!this.state.cidade}>
+                                <Renderif test={this.state.animalSelect != ""}>
                                     <Item stackedLabel>
-                                        <Label>Cidade</Label>
-                                        <Input
-                                            value={this.state.cidade}
-                                            onChangeText={val =>
-                                                this.setState({ cidade: val })
-                                            }
-                                        />
+                                        <Label>Nome: {this.state.animalSelect.nome}</Label>
                                     </Item>
-                                </Renderif>
 
-                                <Renderif test={!this.state.estado}>
                                     <Item stackedLabel>
-                                        <Label>Estado</Label>
-                                        <Input
-                                            value={this.state.estado}
-                                            onChangeText={val =>
-                                                this.setState({ estado: val })
-                                            }
-                                        />
+                                        <Label>Cor: {this.state.animalSelect.cor}</Label>
                                     </Item>
-                                </Renderif>
 
-                               
-                                <Item stackedLabel>
-                                    <Label style={{}}>Descrição </Label>
-                                    <Form style={{ width: "100%" }}>
-                                        <Textarea style={{ height: 90 }}
-                                            value={this.state.descricao}
-                                            onChangeText={val => {
-                                                this.setState({
-                                                    descricao: val
-                                                });
+                                    <Item stackedLabel>
+                                        <Label>Espécie: {this.state.animalSelect.especie}</Label>
+                                    </Item>
+
+                                    <Item stackedLabel>
+                                        <Label>Raça: {this.state.animalSelect.raca}</Label>
+                                    </Item>
+
+                                    <Item stackedLabel>
+                                        <Label>sexo: {this.state.animalSelect.sexo}</Label>
+                                    </Item>
+
+                                    <View
+                                        style={{
+                                            flex: 1,
+                                            flexDirection: "row-reverse",
+                                            marginTop: "10%"
+                                        }}
+                                    >
+
+                                        <Button
+                                            //disabled= {this.state.desabilitarBotao}
+                                            block
+
+                                            style={{
+                                                width: 125,
+                                                backgroundColor: ColorsSheme.LIGHT_LORANGE,
                                             }}
-                                            rowSpan={2}
-                                            bordered
-                                        />
-                                    </Form>
-                                </Item> */}
+                                            onPress={() => this.enviar()}
+                                        >
+                                            <Text>Doar</Text>
+                                        </Button>
+                                    </View>
+
+                                </Renderif>
+
                             </Form>
                         </View>
 
-
-                        <View
-                            style={{
-                                flex: 1,
-                                flexDirection: "row-reverse",
-                                marginLeft: 21,
-                                padding: 20
-                            }}
-                        >
-
-                            <Button
-                                //disabled= {this.state.desabilitarBotao}
-                                block
-
-                                style={{
-                                    width: 125,
-                                    backgroundColor: ColorsSheme.LIGHT_LORANGE,
-                                }}
-                                onPress={() => this.enviar()}
-                            >
-                                <Text>Confirmar</Text>
-                            </Button>
-                        </View>
                     </Content>
                 </Container>
             </DrawerBase>

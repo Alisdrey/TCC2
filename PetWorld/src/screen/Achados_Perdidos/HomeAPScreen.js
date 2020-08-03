@@ -63,8 +63,27 @@ export default class HomeAP extends Component {
 
         this.getdadosPerdidos()
         this.getdadosEncontrado()
+        this.getDoacoes()
 
     }
+
+
+    // getDoacoes(){
+    // const url = Server.API_GET_PET_ACHADO
+    // fetch(url)
+    //     .then(response => response.json())
+    //     .then(responseJson => {
+    //         if (responseJson) {
+    //             this.setState({
+    //                 dadospetachado_imagem: responseJson
+    //             })
+    //         }
+    //     })
+    //     .catch(err => {
+    //         console.log(err);
+    //     });
+
+    // }
 
 
     getdadosEncontrado() {
@@ -205,6 +224,27 @@ export default class HomeAP extends Component {
                         >
                             <Text style={{ color: "white" }}>
                                 Achados
+                            </Text>
+                        </TabHeading>
+                    }>
+                        <Content padder style={{ marginBottom: 55 }}>
+                            {
+                                <FlatList
+                                    data={this.state.dadospetachado_imagem}
+                                    keyExtractor={this._keyExtractor_encontrado}
+                                    renderItem={this._renderItemEncontrado}
+                                />
+                            }
+                        </Content>
+                    </Tab>
+                    <Tab heading={
+                        <TabHeading
+                            style={{
+                                backgroundColor: ColorsScheme.ASENT_COLOR
+                            }}
+                        >
+                            <Text style={{ color: "white" }}>
+                                Doações
                             </Text>
                         </TabHeading>
                     }>
